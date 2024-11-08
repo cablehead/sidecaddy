@@ -1,0 +1,33 @@
+{
+	# Require API_TARGET to be set
+	{env.API_TARGET}
+}
+
+:8080 {
+	# Disable automatic HTTPS since it's handled upstream
+	auto_https off
+	
+	# API proxy - forward GET requests only
+	handle /api/* {
+		reverse_proxy {env.API_TARGET} {
+			method GET
+			header_up -Origin
+			header_up -Referer
+			header_up Host {upstream_hostport}
+		}
+	}
+
+	# Static asset handling with cache headers
+	handle /assets/* {
+		root * /app/dist
+		file_server
+		header Cache-Control "public, max-age=2592000, immutable"
+	}
+
+	# SPA fallback - handle all other routes
+	handle {
+		root * /app/dist
+		try_files {path} /index.html
+		file_server
+	}
+}
