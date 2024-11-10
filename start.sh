@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+
+sleep infinity
 
 # Exit on any error
 set -e
